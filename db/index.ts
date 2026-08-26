@@ -1,13 +1,33 @@
-import { env } from "cloudflare:workers";
-import { drizzle } from "drizzle-orm/d1";
-import * as schema from "./schema";
+import postgres from "postgres";
 
-export function getDb() {
-  if (!env.DB) {
-    throw new Error(
-      "Cloudflare D1 binding `DB` is unavailable. Set the `d1` field in .openai/hosting.json to `DB` or let your control plane inject the real binding values before using the database."
-    );
-  }
+const connectionString = process.env.DATABASE_URL;
+if (!connectionString) throw new Error("DATABASE_URL não configurada.");
 
-  return drizzle(env.DB, { schema });
+export const sql = postgres(connectionString, { ssl: "require", max: 5 });
+
+let schemaReady: Promise<void> | null = null;
+export function ensureSchema() {
+  schemaReady ??= (async () => {
+    await sql`CREATE TABLE IF NOT EXISTS students (
+      id text PRIMARY KEY,
+      name text NOT NULL,
+      class_name text NOT NULL,
+      current_lesson integer NOT NULL DEFAULT 1,
+      current_stage text NOT NULL DEFAULT 'Entenda',
+      completed_count integer NOT NULL DEFAULT 0,
+      last_active_at timestamptz NOT NULL DEFAULT now(),
+      created_at timestamptz NOT NULL DEFAULT now()
+    )`;
+    await sql`CREATE TABLE IF NOT EXISTS progress (
+      student_id text NOT NULL REFERENCES students(id) ON DELETE CASCADE,
+      lesson_slug text NOT NULL,
+      answer text NOT NULL DEFAULT '',
+      completed boolean NOT NULL DEFAULT false,
+      updated_at timestamptz NOT NULL DEFAULT now(),
+      PRIMARY KEY (student_id, lesson_slug)
+    )`;
+    await sql`CREATE INDEX IF NOT EXISTS idx_students_class_name ON students(class_name)`;
+    await sql`CREATE INDEX IF NOT EXISTS idx_progress_student_id ON progress(student_id)`;
+  })();
+  return schemaReady;
 }
