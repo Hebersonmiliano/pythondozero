@@ -13,17 +13,9 @@
     "isolatedModules": true,
     "jsx": "react-jsx",
     "incremental": true,
-    "paths": {
-      "@/*": ["./*"]
-    }
+    "plugins": [{ "name": "next" }],
+    "paths": { "@/*": ["./*"] }
   },
-  "include": [
-    "next-env.d.ts",
-    "**/*.ts",
-    "**/*.tsx",
-    ".next/types/**/*.ts",
-    ".next/dev/types/**/*.ts",
-    "**/*.mts"
-  ],
-  "exclude": ["node_modules"]
+  "include": ["next-env.d.ts", "app/**/*.ts", "app/**/*.tsx", "db/index.ts", ".next/types/**/*.ts"],
+  "exclude": ["node_modules", "build", "worker", "examples", "db/schema.ts", "vite.config.ts", "drizzle.config.ts"]
 }
