@@ -25,7 +25,7 @@ builtins.input = _entrada
 `;
    const result=await runtime.runPythonAsync(prelude+code),resultText=result!==undefined&&result!==null?String(result):"";
    const visible=lines.join("\n")+resultText||"Programa executado sem saída.";setOutput(visible);
-   const normalized=code.toLowerCase(),missing=expectedCommands.map(x=>x.replace(/[().]/g,"").trim().toLowerCase()).filter(x=>x.length>1&&!normalized.includes(x)).slice(0,2);
+   const normalized=code.toLowerCase(),ignored=["aspas","indice","lista","parametro","argumento","indentacao","comentario"];const missing=expectedCommands.map(x=>x.replace(/[().#]/g,"").trim().toLowerCase()).filter(x=>/^[a-z_]+$/.test(x)&&x.length>1&&!ignored.includes(x)&&!normalized.includes(x)).slice(0,2);
    const msg=missing.length?`O código executou, mas revise se precisa usar: ${missing.join(", ")}.`:"Código executado sem erros. Confira se a saída atende ao enunciado.";
    setAnalysis(msg);onResult?.(missing.length===0,msg);
   }catch(error){const msg="O Python encontrou um erro: "+(error instanceof Error?error.message:String(error));setOutput(msg);setAnalysis("Leia a última linha do erro, corrija o código e execute novamente.");onResult?.(false,msg)}
