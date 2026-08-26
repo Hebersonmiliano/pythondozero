@@ -1,5 +1,5 @@
 export type Student = { id:string; name:string; className:string; currentLesson:number; currentStage:string; completedCount:number };
-export type Progress = { lessonSlug:string; answer:string; completed:boolean };
+export type Progress = { lessonSlug:string; answer:string; completed:boolean; reviewStatus:string; teacherFeedback:string; submittedAt:string|null };
 export const studentKey = "python-do-zero-student";
 export function savedStudent(): Student | null { try { return JSON.parse(localStorage.getItem(studentKey) || "null") } catch { return null } }
 export function rememberStudent(student: Student) { localStorage.setItem(studentKey, JSON.stringify(student)); }
