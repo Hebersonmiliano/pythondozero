@@ -1,0 +1,12 @@
+"use client";
+import {useEffect,useState} from "react";
+import Link from "next/link";
+import {logicLessons} from "../logic-data";
+import {loadProgress,savedStudent,Student} from "../student";
+export default function LogicHome(){
+ const [student,setStudent]=useState<Student|null>(null),[done,setDone]=useState<string[]>([]);
+ useEffect(()=>{const current=savedStudent();if(!current){location.href="/";return}setStudent(current);loadProgress(current.id).then(data=>setDone(data.progress.filter(x=>x.completed&&x.lessonSlug.startsWith("logica-")).map(x=>x.lessonSlug))).catch(()=>location.href="/")},[]);
+ if(!student)return <main className="logic-loading">Carregando trilha...</main>;
+ const progress=Math.round(done.length/logicLessons.length*100),nextIndex=Math.min(done.length,logicLessons.length-1);
+ return <main className="logic-dashboard"><header className="logic-head"><Link className="brand" href="/"><span className="brandmark">&gt;_</span><span>python<span>dozero</span></span></Link><div><b>{student.name}</b><span>{student.className}</span></div></header><section className="logic-hero"><div><span className="pill">NOVA TRILHA · 15 MISSÕES</span><h1>Lógica de<br/><em>Programação</em></h1><p>Aprenda a pensar, organizar soluções e construir algoritmos antes de programar.</p><a className="primary" href={`/logica/aulas/${logicLessons[nextIndex].slug}`}>{done.length?"Continuar trilha":"Começar agora"} →</a></div><div className="logic-progress-card"><span>SEU PROGRESSO</span><strong>{progress}%</strong><div><i style={{width:`${progress}%`}}/></div><p>{done.length} de {logicLessons.length} missões concluídas</p><Link href="/">Alternar para Python →</Link></div></section><section className="logic-map"><div><span className="section-kicker">MAPA DA TRILHA</span><h2>Construa sua base passo a passo</h2></div><div className="logic-grid">{logicLessons.map((lesson,i)=>{const complete=done.includes(lesson.slug),locked=i>done.length;return <article key={lesson.slug} className={`logic-mission ${complete?"done":""} ${locked?"locked":""}`}><span>{String(i+1).padStart(2,"0")} · {lesson.topic}</span><h3>{lesson.title}</h3><p>{lesson.summary}</p>{locked?<small>🔒 Conclua a missão anterior</small>:<a href={`/logica/aulas/${lesson.slug}`}>{complete?"Revisar":"Iniciar"} →</a>}</article>})}</div></section></main>
+}
