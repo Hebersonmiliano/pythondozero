@@ -1,0 +1,14 @@
+"use client";
+import {FormEvent,useEffect,useMemo,useState} from "react";
+import Link from "next/link";
+import {lessons} from "../course-data";
+type Row={id:string;name:string;className:string;currentLesson:number;currentStage:string;completedCount:number;lastActiveAt:string};
+export default function Professor(){
+ const [rows,setRows]=useState<Row[]>([]),[password,setPassword]=useState(""),[authorized,setAuthorized]=useState(false),[error,setError]=useState(""),[filter,setFilter]=useState("Todas");
+ async function load(){const r=await fetch("/api/students");if(r.ok){setRows((await r.json()).students);setAuthorized(true)}}
+ useEffect(()=>{load()},[]);
+ async function login(e:FormEvent){e.preventDefault();setError("");const r=await fetch("/api/professor",{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({password})});const data=await r.json();if(!r.ok){setError(data.error);return}setAuthorized(true);load()}
+ const classes=useMemo(()=>["Todas",...Array.from(new Set(rows.map(x=>x.className)))],[rows]),shown=filter==="Todas"?rows:rows.filter(x=>x.className===filter);
+ if(!authorized)return <main className="teacher-login"><form onSubmit={login}><Link className="brand" href="/"><span className="brandmark">&gt;_</span><span>python<span>dozero</span></span></Link><span className="section-kicker">ÁREA RESTRITA</span><h1>Painel do professor</h1><label>Senha<input type="password" value={password} onChange={e=>setPassword(e.target.value)} required autoFocus/></label>{error&&<p className="form-error">{error}</p>}<button className="primary">Entrar</button><Link href="/">← Voltar ao curso</Link></form></main>;
+ return <main className="teacher-panel"><header><div><span className="section-kicker">PAINEL DO PROFESSOR</span><h1>Acompanhamento das turmas</h1><p>{rows.length} aluno{rows.length===1?"":"s"} identificado{rows.length===1?"":"s"}</p></div><div><select value={filter} onChange={e=>setFilter(e.target.value)}>{classes.map(x=><option key={x}>{x}</option>)}</select><button onClick={load}>Atualizar</button></div></header><section className="teacher-table"><table><thead><tr><th>Aluno</th><th>Turma</th><th>Aula atual</th><th>Etapa</th><th>Progresso</th><th>Última atividade</th></tr></thead><tbody>{shown.map(x=><tr key={x.id}><td><strong>{x.name}</strong></td><td><span className="class-chip">{x.className}</span></td><td>{String(x.currentLesson).padStart(2,"0")} · {lessons[x.currentLesson-1]?.title||"Curso concluído"}</td><td>{x.currentStage}</td><td><div className="mini-progress"><i style={{width:`${x.completedCount/20*100}%`}}/></div><small>{x.completedCount}/20</small></td><td>{new Date(x.lastActiveAt+"Z").toLocaleString("pt-BR")}</td></tr>)}</tbody></table>{shown.length===0&&<p className="empty-state">Nenhum aluno nesta turma ainda.</p>}</section><Link className="teacher-back" href="/">← Voltar ao curso</Link></main>
+}
