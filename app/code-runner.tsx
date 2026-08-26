@@ -9,7 +9,7 @@ export default function CodeRunner({initialCode,onCodeChange}:Props){
  async function run(){
   setRunning(true);setOutput("Carregando Python...");
   try{
-   if(!window.loadPyodide){const module=await import(/* webpackIgnore: true */"https://cdn.jsdelivr.net/pyodide/v0.27.7/full/pyodide.mjs");window.loadPyodide=module.loadPyodide}
+   if(!window.loadPyodide){// @ts-expect-error Módulo externo carregado diretamente no navegador\n   const module=await import(/* webpackIgnore: true */"https://cdn.jsdelivr.net/pyodide/v0.27.7/full/pyodide.mjs");window.loadPyodide=module.loadPyodide}
    const runtime=(window.pythonRuntime||await window.loadPyodide!({indexURL:"https://cdn.jsdelivr.net/pyodide/v0.27.7/full/"})) as Awaited<ReturnType<NonNullable<typeof window.loadPyodide>>>;window.pythonRuntime=runtime;
    const lines:string[]=[];runtime.setStdout({batched:text=>lines.push(text)});runtime.setStderr({batched:text=>lines.push(text)});
    const result=await runtime.runPythonAsync(code);setOutput(lines.join("\n")+(result!==undefined&&result!==null?String(result):"")||"Programa executado sem saída.");
