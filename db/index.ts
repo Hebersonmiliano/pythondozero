@@ -18,7 +18,7 @@ export function ensureSchema() {
       last_active_at timestamptz NOT NULL DEFAULT now(),
       created_at timestamptz NOT NULL DEFAULT now()
     )`;
-    await sql`CREATE TABLE IF NOT EXISTS progress (
+    await sql`ALTER TABLE students ADD COLUMN IF NOT EXISTS pin_hash text`;\n    await sql`ALTER TABLE students ADD COLUMN IF NOT EXISTS failed_attempts integer NOT NULL DEFAULT 0`;\n    await sql`ALTER TABLE students ADD COLUMN IF NOT EXISTS locked_until timestamptz`;\n    await sql`CREATE TABLE IF NOT EXISTS progress (
       student_id text NOT NULL REFERENCES students(id) ON DELETE CASCADE,
       lesson_slug text NOT NULL,
       answer text NOT NULL DEFAULT '',
