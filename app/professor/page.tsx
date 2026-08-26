@@ -7,7 +7,8 @@ type Row={id:string;name:string;className:string;currentLesson:number;currentSta
 
 export default function Professor(){
  const [rows,setRows]=useState<Row[]>([]),[password,setPassword]=useState(""),[authorized,setAuthorized]=useState(false),[error,setError]=useState(""),[filter,setFilter]=useState("Todas");
- const [studentName,setStudentName]=useState(""),[studentClass,setStudentClass]=useState(""),[generatedPin,setGeneratedPin]=useState<{name:string;pin:string}|null>(null),[pinError,setPinError]=useState(""),[managingPin,setManagingPin]=useState(false);\n const [currentPassword,setCurrentPassword]=useState(""),[newPassword,setNewPassword]=useState(""),[confirmPassword,setConfirmPassword]=useState(""),[passwordMessage,setPasswordMessage]=useState(""),[passwordError,setPasswordError]=useState(""),[changing,setChanging]=useState(false);
+ const [studentName,setStudentName]=useState(""),[studentClass,setStudentClass]=useState(""),[generatedPin,setGeneratedPin]=useState<{name:string;pin:string}|null>(null),[pinError,setPinError]=useState(""),[managingPin,setManagingPin]=useState(false);
+ const [currentPassword,setCurrentPassword]=useState(""),[newPassword,setNewPassword]=useState(""),[confirmPassword,setConfirmPassword]=useState(""),[passwordMessage,setPasswordMessage]=useState(""),[passwordError,setPasswordError]=useState(""),[changing,setChanging]=useState(false);
  async function load(){const r=await fetch("/api/students");if(r.ok){setRows((await r.json()).students);setAuthorized(true)}}
  useEffect(()=>{load()},[]);
  async function login(e:FormEvent){e.preventDefault();setError("");const r=await fetch("/api/professor",{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({password})});const data=await r.json();if(!r.ok){setError(data.error);return}setAuthorized(true);setPassword("");load()}
