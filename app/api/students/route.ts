@@ -1,4 +1,5 @@
 import { ensureSchema, sql } from "../../../db";
+import { teacherRequestIsAuthorized } from "../professor/auth";
 
 const clean = (value: unknown, max: number) => typeof value === "string" ? value.trim().replace(/\s+/g, " ").slice(0, max) : "";
 const studentView = (row: Record<string, unknown>) => ({
@@ -21,20 +22,8 @@ export async function POST(request: Request) {
 }
 
 export async function GET(request: Request) {
-  if (!isTeacher(request)) return Response.json({ error: "Acesso negado." }, { status: 401 });
+  if (!await teacherRequestIsAuthorized(request)) return Response.json({ error: "Acesso negado." }, { status: 401 });
   await ensureSchema();
   const rows = await sql`SELECT * FROM students ORDER BY class_name,name`;
   return Response.json({ students: rows.map(studentView) });
-}
-
-function isTeacher(request: Request) {
-  const password = process.env.PROFESSOR_PASSWORD || "";
-  const cookie = request.headers.get("cookie")?.match(/(?:^|; )professor_session=([^;]+)/)?.[1] || "";
-  return password.length >= 8 && cookie === teacherToken(password);
-}
-
-export function teacherToken(password: string) {
-  let hash = 2166136261;
-  for (const char of `python-do-zero:${password}`) hash = Math.imul(hash ^ char.charCodeAt(0), 16777619);
-  return (hash >>> 0).toString(36);
 }
