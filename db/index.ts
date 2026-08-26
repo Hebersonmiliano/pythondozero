@@ -29,6 +29,9 @@ export function ensureSchema() {
       updated_at timestamptz NOT NULL DEFAULT now(),
       PRIMARY KEY (student_id, lesson_slug)
     )`;
+    await sql`ALTER TABLE progress ADD COLUMN IF NOT EXISTS review_status text NOT NULL DEFAULT 'rascunho'`;
+    await sql`ALTER TABLE progress ADD COLUMN IF NOT EXISTS teacher_feedback text NOT NULL DEFAULT ''`;
+    await sql`ALTER TABLE progress ADD COLUMN IF NOT EXISTS submitted_at timestamptz`;
     await sql`CREATE TABLE IF NOT EXISTS classroom_posts (
       id bigserial PRIMARY KEY,
       class_name text NOT NULL,
@@ -39,6 +42,15 @@ export function ensureSchema() {
       created_at timestamptz NOT NULL DEFAULT now()
     )`;
     await sql`CREATE INDEX IF NOT EXISTS idx_classroom_posts_class ON classroom_posts(class_name,created_at DESC)`;
+    await sql`CREATE TABLE IF NOT EXISTS classroom_submissions (
+      post_id bigint NOT NULL REFERENCES classroom_posts(id) ON DELETE CASCADE,
+      student_id text NOT NULL REFERENCES students(id) ON DELETE CASCADE,
+      status text NOT NULL DEFAULT 'entregue',
+      submitted_at timestamptz NOT NULL DEFAULT now(),
+      reviewed_at timestamptz,
+      teacher_feedback text NOT NULL DEFAULT '',
+      PRIMARY KEY(post_id,student_id)
+    )`;
     await sql`CREATE TABLE IF NOT EXISTS teacher_settings (
       id integer PRIMARY KEY CHECK (id = 1),
       password_hash text NOT NULL,
