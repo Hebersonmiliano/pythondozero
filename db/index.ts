@@ -29,6 +29,16 @@ export function ensureSchema() {
       updated_at timestamptz NOT NULL DEFAULT now(),
       PRIMARY KEY (student_id, lesson_slug)
     )`;
+    await sql`CREATE TABLE IF NOT EXISTS classroom_posts (
+      id bigserial PRIMARY KEY,
+      class_name text NOT NULL,
+      kind text NOT NULL CHECK (kind IN ('Recado','Atividade')),
+      title text NOT NULL,
+      content text NOT NULL,
+      due_date date,
+      created_at timestamptz NOT NULL DEFAULT now()
+    )`;
+    await sql`CREATE INDEX IF NOT EXISTS idx_classroom_posts_class ON classroom_posts(class_name,created_at DESC)`;
     await sql`CREATE TABLE IF NOT EXISTS teacher_settings (
       id integer PRIMARY KEY CHECK (id = 1),
       password_hash text NOT NULL,
