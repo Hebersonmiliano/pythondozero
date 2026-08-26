@@ -26,6 +26,11 @@ export function ensureSchema() {
       updated_at timestamptz NOT NULL DEFAULT now(),
       PRIMARY KEY (student_id, lesson_slug)
     )`;
+    await sql`CREATE TABLE IF NOT EXISTS teacher_settings (
+      id integer PRIMARY KEY CHECK (id = 1),
+      password_hash text NOT NULL,
+      updated_at timestamptz NOT NULL DEFAULT now()
+    )`;
     await sql`CREATE INDEX IF NOT EXISTS idx_students_class_name ON students(class_name)`;
     await sql`CREATE INDEX IF NOT EXISTS idx_progress_student_id ON progress(student_id)`;
   })();
