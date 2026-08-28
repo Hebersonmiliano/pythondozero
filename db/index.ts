@@ -32,6 +32,7 @@ export function ensureSchema() {
     await sql`ALTER TABLE progress ADD COLUMN IF NOT EXISTS review_status text NOT NULL DEFAULT 'rascunho'`;
     await sql`ALTER TABLE progress ADD COLUMN IF NOT EXISTS teacher_feedback text NOT NULL DEFAULT ''`;
     await sql`ALTER TABLE progress ADD COLUMN IF NOT EXISTS submitted_at timestamptz`;
+    await sql`ALTER TABLE progress ADD COLUMN IF NOT EXISTS code_draft text NOT NULL DEFAULT ''`;
     await sql`CREATE TABLE IF NOT EXISTS classroom_posts (
       id bigserial PRIMARY KEY,
       class_name text NOT NULL,
