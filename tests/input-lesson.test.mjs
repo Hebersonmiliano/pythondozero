@@ -10,6 +10,10 @@ const commandData = await readFile(
   new URL("../app/command-data.ts", import.meta.url),
   "utf8",
 );
+const codeRunner = await readFile(
+  new URL("../app/code-runner.tsx", import.meta.url),
+  "utf8",
+);
 
 test("lesson 4 requests name, phone and school as text", () => {
   const lesson = courseData.match(/\{slug:"input"[^\n]+\}/)?.[0] ?? "";
@@ -26,4 +30,11 @@ test("lesson 4 verification only expects commands used by its example", () => {
   assert.match(commands, /command:"input\(\)"/);
   assert.match(commands, /command:"print\(\)"/);
   assert.doesNotMatch(commands, /command:"int\(\)"|command:"float\(\)"/);
+});
+
+test("the runner explains missing input values without showing a Python traceback", () => {
+  assert.match(codeRunner, /requiredInputs>1&&filledValues\.length<requiredInputs/);
+  assert.match(codeRunner, /Preencha \$\{requiredInputs\} respostas/);
+  assert.match(codeRunner, /detail\.includes\("Faltou informar um valor no campo Entradas"\)/);
+  assert.match(codeRunner, /Execução não concluída\./);
 });
