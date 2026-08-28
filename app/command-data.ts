@@ -18,9 +18,8 @@ export const commandDefinitions:Record<string,CommandDefinition[]>={
   {command:"bool",definition:"Tipo lógico que pode ser True ou False.",syntax:"matriculado = True"}
  ],
  "input":[
-  {command:"input()",definition:"Mostra uma pergunta e recebe o texto digitado pelo usuário.",syntax:'nome = input("Nome: ")'},
-  {command:"int()",definition:"Converte um valor para número inteiro.",syntax:'idade = int(input("Idade: "))'},
-  {command:"float()",definition:"Converte um valor para número decimal.",syntax:'nota = float(input("Nota: "))'}
+  {command:"input()",definition:"Mostra uma pergunta e recebe o texto digitado pelo usuário.",syntax:'nome = input("Qual seu nome? ")'},
+  {command:"print()",definition:"Exibe na tela os dados armazenados nas variáveis.",syntax:'print("Nome:", nome)'}
  ],
  "operadores":[
   {command:"+",definition:"Realiza adição.",syntax:"total = 10 + 5"},
